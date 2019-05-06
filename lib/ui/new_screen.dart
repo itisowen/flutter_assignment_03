@@ -1,5 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_assignment_03/models/firestore_model.dart';
 
 class TodoNewSub extends StatefulWidget {
   @override
@@ -8,10 +8,9 @@ class TodoNewSub extends StatefulWidget {
   }
 }
 
-class TodoNewSubState extends State<StatefulWidget> {
+class TodoNewSubState extends State<TodoNewSub> {
   final _formkey = GlobalKey<FormState>();
   TextEditingController subjectController = TextEditingController();
-  TodoProvider db = TodoProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +38,8 @@ class TodoNewSubState extends State<StatefulWidget> {
                 onPressed: () async {
                   _formkey.currentState.validate();
                   if (subjectController.text.isNotEmpty) {
-                    await db.open("todo.db");
-                    Todo todo = Todo();
-                    todo.title = subjectController.text;
-                    todo.done = false;
-                    await db.insert(todo);
+                    Firestore.instance.collection('todo').document().setData(
+                        {'title': subjectController.text, 'done': false});
                     Navigator.pop(context, true);
                   }
                 },

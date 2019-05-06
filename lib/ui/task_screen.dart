@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_assignment_03/models/firestore_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_assignment_03/ui/new_screen.dart';
 
 class TaskScreen extends StatefulWidget {
@@ -10,65 +11,53 @@ class TaskScreen extends StatefulWidget {
 }
 
 class TaskScreenState extends State<TaskScreen> {
-  TodoProvider db = TodoProvider();
-  List<Todo> todoList;
-  int count = 0;
-
-  void getList() async {
-    await db.open("todo.db");
-    db.getAll().then((todoList) {
-      setState(() {
-        this.todoList = todoList;
-        count = todoList.length;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    getList();
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Todo"),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => TodoNewSub()));
-              },
-            )
-          ],
-        ),
-        body: Center(
-          child: count == 0
-              ? Text(
-                  "No data found..",
-                  style: TextStyle(fontSize: 14.0),
-                )
-              : ListView.builder(
-                  itemCount: todoList.length,
-                  padding: const EdgeInsets.all(16.0),
-                  itemBuilder: (context, position) {
-                    return Column(
-                      children: <Widget>[
-                        Divider(
-                          height: 5.0,
-                        ),
-                        CheckboxListTile(
-                          title: Text(todoList[position].title),
-                          value: todoList[position].done,
-                          onChanged: (bool value) {
-                            setState(() {
-                              todoList[position].done = value;
-                            });
-                            db.update(todoList[position]);
-                          },
-                        )
-                      ],
-                    );
-                  },
+    return StreamBuilder(
+        stream: Firestore.instance
+            .collection('todo')
+            .where('done', isEqualTo: false)
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData) {
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text("Todo"),
+                  actions: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TodoNewSub()));
+                      },
+                    )
+                  ],
                 ),
-        ));
+                body: Center(
+                  child: snapshot.data.documents.length == 0
+                      ? Text(
+                          "No data found..",
+                          style: TextStyle(fontSize: 14.0),
+                        )
+                      : ListView(
+                          children: snapshot.data.documents
+                              .map((DocumentSnapshot document) {
+                            return CheckboxListTile(
+                              title: Text(document['title']),
+                              value: document['done'],
+                              onChanged: (bool value) {
+                                FirestoreUtils.update(
+                                    document.documentID, value);
+                              },
+                            );
+                          }).toList(),
+                        ),
+                ));
+          } else {
+            return CircularProgressIndicator();
+          }
+        });
   }
 }
