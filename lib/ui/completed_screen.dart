@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_assignment_02/models/todo.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_assignment_03/models/firestore_model.dart';
 
 class CompletedScreen extends StatefulWidget {
   @override

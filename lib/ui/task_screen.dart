@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_assignment_02/models/todo.dart';
-import 'package:flutter_assignment_02/ui/new_screen.dart';
+import 'package:flutter_assignment_03/models/firestore_model.dart';
+import 'package:flutter_assignment_03/ui/new_screen.dart';
 
 class TaskScreen extends StatefulWidget {
   @override

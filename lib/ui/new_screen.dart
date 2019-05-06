@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_assignment_02/models/todo.dart';
+import 'package:flutter_assignment_03/models/firestore_model.dart';
 
 class TodoNewSub extends StatefulWidget {
   @override
